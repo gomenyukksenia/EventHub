@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}Student Dashboard{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <div class="small-box text-white text-center p-4" style="background-color: #6EC6CA; border-radius: 10px;">
+      <h3>{{ event|default:"0" }}</h3>
+      <p>Total Events</p>
+      <a href="{% url 'event-list' %}" class="text-white">See All <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="small-box text-white text-center p-4" style="background-color: #AEDBD3; border-radius: 10px;">
+      <h3>{{ complete_event|default:"0" }}</h3>
+      <p>Completed Events</p>
+      <a href="{% url 'complete-event-user' %}" class="text-white">See Completed <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+</div>
+{% endblock content %}

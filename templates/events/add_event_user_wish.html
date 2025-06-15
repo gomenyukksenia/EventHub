@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add Event User Wish{% endblock title %}
+{% block breadcrumb %}Add Event User Wish{% endblock breadcrumb %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="card shadow-sm border-0 rounded-lg my-5 mx-auto" style="max-width: 600px;">
+    <div class="card-header bg-info text-white py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-heart mr-2"></i>Add Event Wish</h4>
+        <a class="btn btn-outline-light btn-sm" href="{% url 'event-wish-list' %}">
+          <i class="fas fa-list"></i> Wish List
+        </a>
+      </div>
+    </div>
+    <div class="card-body p-4">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-info btn-lg px-5">
+            <i class="fas fa-plus-circle mr-2"></i>Add Wish
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extrascript %}
+<script>
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      Array.prototype.forEach.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>
+{% endblock extrascript %}

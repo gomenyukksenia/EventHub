@@ -1,0 +1,21 @@
+{% load static %}
+
+<!-- Core CSS -->
+<link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom_theme.css' %}"> 
+
+<!-- Custom Font -->
+<style>
+  @font-face {
+    font-family: 'JuneBug';
+    src: url("{% static 'fonts/Minion-Regular.ttf' %}") format('truetype');
+    font-display: swap;
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  p, a, label, button, input, select {
+    font-family: 'JuneBug', sans-serif;
+  }
+</style>

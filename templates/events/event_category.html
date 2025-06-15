@@ -1,0 +1,91 @@
+{% extends 'base/base.html' %}
+{% block title %}Event Category List{% endblock title %}
+{% block breadcrumb %}Event Category List{% endblock breadcrumb %}
+
+{% block extrahead %}
+  <!-- Custom styles if needed -->
+{% endblock extrahead %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header d-flex align-items-center p-2">
+      <h5 class="mb-0 mr-3">Event Category List</h5>
+      <div class="d-flex align-items-center">
+        <!-- SEARCH FORM -->
+        <form class="form-inline mr-3 position-relative" action="{% url 'search-event-category' %}" method="POST" autocomplete="off">
+          {% csrf_token %}
+          <div class="input-group input-group-sm shadow-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-white border-0" style="background-color: var(--primary-color); color: var(--light-color);">
+                <i class="fas fa-search"></i>
+              </span>
+            </div>
+            <input class="form-control border-0 rounded-right" name="search" type="search" placeholder="Search categories..." aria-label="Search" style="width: 180px;">
+            <div class="input-group-append">
+              <button class="btn d-flex align-items-center justify-content-center rounded-left" type="submit" style="width: 35px; background-color: var(--secondary-color); color: var(--dark-text);">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          <ul class="list-group position-absolute" style="top:38px; left:0; width: calc(180px + 70px); display:none; z-index:1000;">
+            <!-- suggestions -->
+          </ul>
+        </form>
+        <a class="btn btn-sm btn-outline-secondary ml-1" onclick="listView()"><i class="fa fa-bars"></i> List</a>
+        <a class="btn btn-sm btn-outline-secondary active ml-1" onclick="gridView()"><i class="fa fa-th-large"></i> Grid</a>
+        <a class="btn btn-sm btn-success ml-2" href="{% url 'create-event-category' %}">New Category</a>
+      </div>
+    </div>
+    <div class="card-body p-2">
+      <table class="table table-striped table-bordered" style="border-collapse: collapse !important">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Code</th>
+            <th class="ctg_image">Image</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for category in event_category %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ category.name }}</td>
+            <td>{{ category.code }}</td>
+            <td class="ctg_image">
+              <img src="{{ category.image.url }}" alt="Image" height="50" style="border-radius:4px;">
+            </td>
+            <td>{{ category.status }}</td>
+            <td>
+              <a class="btn btn-info btn-sm" href="{% url 'edit-event-category' category.pk %}"><i class="fa fa-edit"></i></a>
+              <a class="btn btn-danger btn-sm" href="{% url 'delete-event-category' category.pk %}"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extrascript %}
+<script>
+  function listView() {
+    document.querySelectorAll('.ctg_image').forEach(el => el.style.display = 'none');
+  }
+  function gridView() {
+    document.querySelectorAll('.ctg_image').forEach(el => el.style.display = 'table-cell');
+  }
+  // Toggle active class on view buttons
+  document.querySelectorAll('.card-header .btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.card-header .btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+{% endblock extrascript %}

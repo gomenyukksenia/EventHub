@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+{% block title %}Create Event{% endblock title %}
+{% block breadcrumb %}Create Event{% endblock breadcrumb %}
+{% load crispy_forms_tags mapbox_location_field_tags %}
+
+{% block extrahead %}
+  <!-- Mapbox -->
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet'/>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+  {% location_field_includes %}
+{% endblock extrahead %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center p-2">
+      <h5 class="mb-0">Create Event</h5>
+      <div class="d-flex align-items-center">
+        <!-- SEARCH FORM -->
+        <form class="form-inline mr-3 position-relative" autocomplete="off">
+          <div class="input-group input-group-sm shadow-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-white border-0" style="background-color: var(--primary-color); color: var(--light-color);">
+                <i class="fas fa-search"></i>
+              </span>
+            </div>
+            <input class="form-control border-0 rounded-right" type="search" placeholder="Search events..." aria-label="Search" style="width: 180px;">
+            <div class="input-group-append">
+              <button class="btn d-flex align-items-center justify-content-center rounded-left" type="submit" style="width: 35px; background-color: var(--secondary-color); color: var(--dark-text);">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          <!-- Suggestion dropdown -->
+          <ul class="list-group position-absolute" style="top: 38px; left: 0; width: calc(180px + 70px); display: none; z-index: 1000;">
+            <!-- JS will populate suggestions here -->
+          </ul>
+        </form>
+          <ul class="list-group position-absolute" style="top: 38px; left: 0; width: calc(180px + 70px); display: none; z-index: 1000;">
+      
+          </ul>
+        </form>
+        <a class="btn btn-sm btn-light" href="{% url 'event-list' %}">Back</a>
+      </div>
+    </div>
+    <div class="card-body p-2">
+      <form method="post" enctype="multipart/form-data" class="d-flex flex-column">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div id="location-field-map" style="height:200px; margin-bottom:8px; border:1px solid #ced4da; border-radius:4px;"></div>
+        <button class="btn btn-primary btn-block btn-sm" type="submit">Create Event</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mapbox init
+  mapboxgl.accessToken = '{{ settings.MAPBOX_KEY }}';
+  new mapboxgl.Map({
+    container: 'location-field-map',
+    style: 'mapbox://styles/mapbox/light-v10',
+    center: [0, 0],
+    zoom: 1
+  });
+
+  // Simple JS for suggestion dropdown (example)
+  const searchInput = document.querySelector('form input[type="search"]');
+  const suggestionBox = document.querySelector('form .list-group');
+  searchInput.addEventListener('input', () => {
+    const val = searchInput.value.trim();
+    if(val.length > 1) {
+
+      suggestionBox.innerHTML = '<li class="list-group-item">Result 1 for "'+val+'"</li>' +
+                                '<li class="list-group-item">Result 2 for "'+val+'"</li>';
+      suggestionBox.style.display = 'block';
+    } else {
+      suggestionBox.style.display = 'none';
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if(!searchInput.contains(e.target)) suggestionBox.style.display = 'none';
+  });
+</script>
+{% endblock content %}

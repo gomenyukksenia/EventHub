@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register Page</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6EC6CA;
+      --secondary-color: #AEDBD3;
+      --accent-color: #9FBBCB;
+      --light-color: #F5FAFA;
+      --dark-text: #2C3E50;
+    }
+
+    body {
+      background-color: var(--light-color);
+      font-family: 'Segoe UI', sans-serif;
+      color: var(--dark-text);
+      margin: 0;
+    }
+
+    .background {
+      width: 430px;
+      height: 520px;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+      z-index: -1;
+    }
+
+    .background .shape {
+      height: 200px;
+      width: 200px;
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .shape:first-child {
+      background: linear-gradient(var(--primary-color), var(--secondary-color));
+      left: -80px;
+      top: -80px;
+    }
+
+    .shape:last-child {
+      background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+      right: -30px;
+      bottom: -80px;
+    }
+
+    form {
+      height: auto;
+      width: 450px;
+      background-color: white;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      top: 50%;
+      left: 50%;
+      border-radius: 10px;
+      box-shadow: 0 0 40px rgba(8, 7, 16, 0.1);
+      padding: 50px 35px;
+    }
+
+    form * {
+      font-family: 'Segoe UI', sans-serif;
+      color: var(--dark-text);
+      letter-spacing: 0.5px;
+      outline: none;
+      border: none;
+    }
+
+    form h3 {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 42px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input, select {
+      display: block;
+      height: 40px;
+      width: 100%;
+      background-color: #f0f9f9;
+      border-radius: 8px;
+      padding: 0 12px;
+      margin-top: 5px;
+      font-size: 14px;
+      border: 1px solid var(--accent-color);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(110, 198, 202, 0.25);
+    }
+
+    button {
+      margin-top: 30px;
+      width: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .form-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <form action="" method="post">
+    {% csrf_token %}
+    <h3>Register Here</h3>
+
+    <label for="username">Username</label>
+    <input type="text" placeholder="Username" name="username" id="username" required>
+
+    <label for="email">Email</label>
+    <input type="email" placeholder="Email address (@ukma.edu.ua)" name="email" id="email" required>
+
+    <label for="password1">Password</label>
+    <input type="password" placeholder="Password" name="password1" id="password1" required>
+
+    <label for="password2">Confirm Password</label>
+    <input type="password" placeholder="Confirm Password" name="password2" id="password2" required>
+
+    <!-- Роль: тільки якщо не адмін -->
+    {% if not email|default:'' == 'd.svirina@ukma.edu.ua' %}
+      <label for="role">Select Role</label>
+      <select name="role" id="role" required>
+        <option value="">-- Choose role --</option>
+        <option value="student">Student</option>
+        <option value="buddy">Buddy</option>
+      </select>
+    {% endif %}
+
+    <button type="submit">Signup</button>
+
+    <div class="form-footer">
+      <a href="{% url 'login' %}">I already have an account</a>
+    </div>
+  </form>
+</body>
+</html>

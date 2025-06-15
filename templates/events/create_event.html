@@ -1,0 +1,40 @@
+{% extends 'base/base.html' %}
+{% block title %}Create Event{% endblock title %}
+{% block breadcrumb %}Create Event{% endblock breadcrumb %}
+{% load crispy_forms_tags mapbox_location_field_tags %}
+
+{% block extrahead %}
+  <!-- Mapbox -->
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet'/>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+  {% location_field_includes %}
+{% endblock extrahead %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between p-2">
+      <h5 class="mb-0">Create Event</h5>
+      <a class="btn btn-sm btn-light" href="{% url 'event-list' %}">Back</a>
+    </div>
+    <div class="card-body p-2">
+      <form method="post" enctype="multipart/form-data" class="d-flex flex-column">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div id="location-field-map" style="height:200px; margin-bottom:8px; border:1px solid #ced4da; border-radius:4px;"></div>
+        <button class="btn btn-primary btn-block btn-sm" type="submit">Create Event</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  mapboxgl.accessToken = '{{ settings.MAPBOX_KEY }}';
+  new mapboxgl.Map({
+    container: 'location-field-map',
+    style: 'mapbox://styles/mapbox/light-v10',
+    center: [0, 0],
+    zoom: 1
+  });
+</script>
+{% endblock content %}
