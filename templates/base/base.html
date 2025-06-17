@@ -26,7 +26,7 @@
   {% if request.user.is_authenticated and request.user.userprofile.role == 'student' %}
     {% include 'sidebar_student.html' %}
   {% else %}
-    {% include 'sidebar.html' %}
+    {% include 'base/sidebar.html' %}
   {% endif %}
   
   <!-- CONTENT WRAPPER -->
