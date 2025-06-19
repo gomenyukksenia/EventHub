@@ -1,85 +1,66 @@
 {% extends 'base/base.html' %}
-{% block title %}Create Event{% endblock title %}
-{% block breadcrumb %}Create Event{% endblock breadcrumb %}
-{% load crispy_forms_tags mapbox_location_field_tags %}
-
-{% block extrahead %}
-  <!-- Mapbox -->
-  <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet'/>
-  <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
-  {% location_field_includes %}
-{% endblock extrahead %}
+{% block title %}Event List{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center p-2">
-      <h5 class="mb-0">Create Event</h5>
-      <div class="d-flex align-items-center">
-        <!-- SEARCH FORM -->
-        <form class="form-inline mr-3 position-relative" autocomplete="off">
-          <div class="input-group input-group-sm shadow-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text bg-white border-0" style="background-color: var(--primary-color); color: var(--light-color);">
-                <i class="fas fa-search"></i>
-              </span>
-            </div>
-            <input class="form-control border-0 rounded-right" type="search" placeholder="Search events..." aria-label="Search" style="width: 180px;">
-            <div class="input-group-append">
-              <button class="btn d-flex align-items-center justify-content-center rounded-left" type="submit" style="width: 35px; background-color: var(--secondary-color); color: var(--dark-text);">
-                <i class="fas fa-arrow-right"></i>
-              </button>
-            </div>
+<div class="container mt-4">
+  <h2 class="mb-4">Event List</h2>
+
+  {% if events %}
+    {% for event in events %}
+      <div class="card mb-4 shadow-sm p-3 rounded">
+        <div class="d-flex" style="gap: 1.5rem; align-items: flex-start;">
+          <!-- LEFT: square image -->
+          <div>
+            {% if event.eventimage %}
+              <img src="{{ event.eventimage.image.url }}" alt="Event Image"
+                   style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;">
+            {% else %}
+              <div style="width: 120px; height: 120px; background-color: #f0f0f0;
+                          display: flex; align-items: center; justify-content: center;
+                          border-radius: 8px;">
+                <span class="text-muted small">No Image</span>
+              </div>
+            {% endif %}
           </div>
-          <!-- Suggestion dropdown -->
-          <ul class="list-group position-absolute" style="top: 38px; left: 0; width: calc(180px + 70px); display: none; z-index: 1000;">
-            <!-- JS will populate suggestions here -->
-          </ul>
-        </form>
-          <ul class="list-group position-absolute" style="top: 38px; left: 0; width: calc(180px + 70px); display: none; z-index: 1000;">
-      
-          </ul>
-        </form>
-        <a class="btn btn-sm btn-light" href="{% url 'event-list' %}">Back</a>
+
+          <!-- RIGHT: event info -->
+          <div class="flex-grow-1">
+            <h5 class="mb-2">{{ event.name }}</h5>
+            <p class="mb-1">
+              <strong>Category:</strong> {{ event.category.name }} |
+              <strong>Status:</strong> {{ event.status }} |
+              <strong>UID:</strong> {{ event.uid }}
+            </p>
+            <p class="mb-1">
+              <strong>Venue:</strong> {{ event.venue }}<br>
+              <strong>Dates:</strong> {{ event.start_date }} — {{ event.end_date }}
+            </p>
+            <p class="mb-1">
+              <strong>Points:</strong> {{ event.points }},
+              <strong>Max Attendees:</strong> {{ event.maximum_attende }}
+            </p>
+            <p class="mb-2"><small class="text-muted">Created: {{ event.created_date }}</small></p>
+
+            {% if event.eventagenda_set.exists %}
+              <hr class="my-2">
+              <strong>Agenda:</strong>
+              <ul class="ps-3 mb-0">
+                {% for agenda in event.eventagenda_set.all %}
+                  <li>
+                    <strong>{{ agenda.session_name }}</strong> —
+                    {{ agenda.speaker_name }},
+                    {{ agenda.start_time|time:"H:i" }}–{{ agenda.end_time|time:"H:i" }}
+                    ({{ agenda.venue_name }})
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="card-body p-2">
-      <form method="post" enctype="multipart/form-data" class="d-flex flex-column">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <div id="location-field-map" style="height:200px; margin-bottom:8px; border:1px solid #ced4da; border-radius:4px;"></div>
-        <button class="btn btn-primary btn-block btn-sm" type="submit">Create Event</button>
-      </form>
-    </div>
-  </div>
+    {% endfor %}
+  {% else %}
+    <p>No events found.</p>
+  {% endif %}
 </div>
-
-<script>
-  // Mapbox init
-  mapboxgl.accessToken = '{{ settings.MAPBOX_KEY }}';
-  new mapboxgl.Map({
-    container: 'location-field-map',
-    style: 'mapbox://styles/mapbox/light-v10',
-    center: [0, 0],
-    zoom: 1
-  });
-
-  // Simple JS for suggestion dropdown (example)
-  const searchInput = document.querySelector('form input[type="search"]');
-  const suggestionBox = document.querySelector('form .list-group');
-  searchInput.addEventListener('input', () => {
-    const val = searchInput.value.trim();
-    if(val.length > 1) {
-
-      suggestionBox.innerHTML = '<li class="list-group-item">Result 1 for "'+val+'"</li>' +
-                                '<li class="list-group-item">Result 2 for "'+val+'"</li>';
-      suggestionBox.style.display = 'block';
-    } else {
-      suggestionBox.style.display = 'none';
-    }
-  });
-  document.addEventListener('click', (e) => {
-    if(!searchInput.contains(e.target)) suggestionBox.style.display = 'none';
-  });
-</script>
-{% endblock content %}
+{% endblock %}

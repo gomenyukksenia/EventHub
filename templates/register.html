@@ -78,7 +78,18 @@
       font-weight: 600;
       line-height: 42px;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
+    }
+
+    .messages {
+      margin-bottom: 15px;
+    }
+
+    .messages li {
+      font-size: 14px;
+      color: red;
+      list-style: none;
+      margin-bottom: 5px;
     }
 
     label {
@@ -142,29 +153,37 @@
     <div class="shape"></div>
     <div class="shape"></div>
   </div>
+
   <form action="" method="post">
     {% csrf_token %}
     <h3>Register Here</h3>
 
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     <label for="username">Username</label>
-    <input type="text" placeholder="Username" name="username" id="username" required>
+    <input type="text" name="username" id="username" placeholder="Username" value="{{ request.POST.username }}" required>
 
     <label for="email">Email</label>
-    <input type="email" placeholder="Email address (@ukma.edu.ua)" name="email" id="email" required>
+    <input type="email" name="email" id="email" placeholder="Email address (@ukma.edu.ua)" value="{{ request.POST.email }}" required>
 
     <label for="password1">Password</label>
-    <input type="password" placeholder="Password" name="password1" id="password1" required>
+    <input type="password" name="password1" id="password1" placeholder="Password" required>
 
     <label for="password2">Confirm Password</label>
-    <input type="password" placeholder="Confirm Password" name="password2" id="password2" required>
+    <input type="password" name="password2" id="password2" placeholder="Confirm Password" required>
 
-    <!-- Роль: тільки якщо не адмін -->
-    {% if not email|default:'' == 'd.svirina@ukma.edu.ua' %}
+    {% if request.POST.email != "d.svirina@ukma.edu.ua" %}
       <label for="role">Select Role</label>
       <select name="role" id="role" required>
         <option value="">-- Choose role --</option>
-        <option value="student">Student</option>
-        <option value="buddy">Buddy</option>
+        <option value="student" {% if request.POST.role == 'student' %}selected{% endif %}>Student</option>
+        <option value="buddy" {% if request.POST.role == 'buddy' %}selected{% endif %}>Buddy</option>
       </select>
     {% endif %}
 

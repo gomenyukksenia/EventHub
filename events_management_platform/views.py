@@ -12,6 +12,12 @@ from events.models import EventCategory, Event, EmailConfirmation
 from .forms import LoginForm, ConfirmationCodeForm  # не забудь створити ConfirmationCodeForm
 from events.models import UserProfile
 from django.utils import timezone
+from django.core.mail import EmailMessage
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+
+from events.forms import UserSettingsForm
 
 # ==== DASHBOARD ====
 @login_required(login_url='login')
@@ -51,7 +57,6 @@ def edit_event(request, pk):
             return HttpResponseForbidden("You can only edit within 5 minutes of creation.")
 
     # далі — звичайна логіка редагування
-
 # ==== LOGIN ====
 def login_page(request):
     form = LoginForm()
@@ -84,7 +89,6 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-
 # ==== REGISTER ====
 def RegisterPage(request):
     if request.method == 'POST':
@@ -92,44 +96,60 @@ def RegisterPage(request):
         email = request.POST.get('email')
         pass1 = request.POST.get('password1')
         pass2 = request.POST.get('password2')
+        role = request.POST.get('role')
+
+        context = {
+            'username': uname,
+            'email': email,
+            'role': role,
+        }
 
         if User.objects.filter(username=uname).exists():
             messages.error(request, "This username is already taken.")
-            return redirect('register')
+            return render(request, 'register.html', context)
 
         if User.objects.filter(email=email).exists():
             messages.error(request, "An account with this email already exists.")
-            return redirect('register')
+            return render(request, 'register.html', context)
 
         if not email.endswith('@ukma.edu.ua'):
             messages.error(request, "Only @ukma.edu.ua email addresses are allowed.")
-            return redirect('register')
+            return render(request, 'register.html', context)
 
         if pass1 != pass2:
             messages.error(request, "Passwords do not match.")
-            return redirect('register')
+            return render(request, 'register.html', context)
 
         # Створюємо користувача (неактивного)
         my_user = User.objects.create_user(uname, email, pass1)
         my_user.is_active = False
         my_user.save()
-        role = 'admin' if email == 'd.svirina@ukma.edu.ua' else request.POST.get('role')  # 'buddy' або 'student'
+        role = 'admin' if email == 'an.zinchenko@ukma.edu.ua' else role
         UserProfile.objects.create(user=my_user, role=role)
-
-        
 
         # Генеруємо код підтвердження
         code = str(random.randint(100000, 999999))
         EmailConfirmation.objects.create(user=my_user, code=code)
 
-        # Надсилаємо код
-        send_mail(
-            'Confirm your email for EventHub',
-            f'Your confirmation code is: {code}',
-            'noreply@eventhub.test',  # заміни на свою email-адресу при потребі
-            [email],
-            fail_silently=False
+        # Надсилаємо лист
+        email_message = EmailMessage(
+            subject='Your EventHub Confirmation Code',
+            body=f"""
+Hello,
+
+Thank you for registering on EventHub!
+
+Your confirmation code is: {code}
+
+If you didn't request this, please ignore the email.
+
+Best regards,  
+EventHub Team
+""",
+            from_email='EventHub Confirmation <eventhub472@gmail.com>',
+            to=[email]
         )
+        email_message.send()
 
         # Зберігаємо ID в сесію
         request.session['pending_user_id'] = my_user.id
@@ -170,12 +190,11 @@ def confirm_code(request):
 # ==== FORGOT PASSWORD ====
 def forgot_page(request):
     if request.method == 'POST':
-        # Add logic later
         pass
     return render(request, 'forgot-password.html')
 
 
-# ==== Optional old logout (можеш видалити, якщо не потрібно) ====
+
 def logut_page(request):
     logout(request)
     return redirect('login')
@@ -188,3 +207,75 @@ def whats_on(request):
         'events': upcoming_events
     }
     return render(request, 'events/whats_on.html', context)
+
+def send_new_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return HttpResponse("This email is not registered.")
+
+        # Генеруємо новий пароль
+        new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        user.set_password(new_password)
+        user.save()
+
+        # Надсилаємо новий пароль
+        email_message = EmailMessage(
+            subject='Your New Password',
+            body=f'''
+Hi {user.username},
+
+You requested a password reset on EventHub.
+Your new password is: {new_password}
+
+You can now log in using this password. For security reasons, please change it after logging in.
+
+Best regards,  
+EventHub Team
+''',
+            from_email='EventHub <eventhub472@gmail.com>',
+            to=[email]
+        )
+        email_message.send()
+
+        return HttpResponse("A new password has been sent to your email.")
+
+    return render(request, 'events/send_new_password.html')
+
+@login_required
+def settings_page(request):
+    user = request.user
+    profile = user.userprofile
+
+    if request.method == 'POST':
+        form = UserSettingsForm(request.POST, instance=user)
+        current = request.POST.get('current_password')
+        new = request.POST.get('new_password')
+        confirm = request.POST.get('confirm_password')
+
+        if form.is_valid():
+            user.username = form.cleaned_data['username']
+            profile.role = form.cleaned_data['role']
+            profile.save()
+
+            if current and new and confirm:
+                if not user.check_password(current):
+                    messages.error(request, '❌ Current password is incorrect.')
+                elif new != confirm:
+                    messages.error(request, '❌ New passwords do not match.')
+                else:
+                    user.set_password(new)
+                    user.save()
+                    update_session_auth_hash(request, user)
+                    messages.success(request, '✅ Password updated successfully.')
+            else:
+                user.save()
+                messages.success(request, '✅ Settings updated successfully.')
+
+            return redirect('user-settings')
+    else:
+        form = UserSettingsForm(instance=user, initial={'role': profile.role})
+
+    return render(request, 'setting-page.html', {'form': form})

@@ -11,6 +11,16 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+import random
+import string
+from events.forms import UserSettingsForm
+from django.core.mail import EmailMessage
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+from django.shortcuts import render
 from .models import (
     EventCategory,
     Event,
@@ -293,4 +303,73 @@ def confirm_code(request):
             return redirect('verify-email')
 
     return render(request, 'verify_email.html')
- 
+
+def send_new_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return HttpResponse("This email is not registered.")
+
+        new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        user.set_password(new_password)
+        user.save()
+
+        email_message = EmailMessage(
+            subject='Your New Password',
+            body=f'''
+Hi {user.username},
+
+You requested a password reset on EventHub.
+Your new password is: {new_password}
+
+You can now log in using this password. For security reasons, please change it after logging in.
+
+Best regards,  
+EventHub Team
+''',
+            from_email='EventHub <eventhub472@gmail.com>',
+            to=[email]
+        )
+        email_message.send()
+
+        return HttpResponse("A new password has been sent to your email.")
+
+    return render(request, 'events/send_new_password.html')
+
+@login_required
+def settings_page(request):
+    user = request.user
+    profile = user.userprofile
+
+    if request.method == 'POST':
+        form = UserSettingsForm(request.POST, instance=user)
+        current = request.POST.get('current_password')
+        new = request.POST.get('new_password')
+        confirm = request.POST.get('confirm_password')
+
+        if form.is_valid():
+            user.username = form.cleaned_data['username']
+            profile.role = form.cleaned_data['role']
+            profile.save()
+
+            if current and new and confirm:
+                if not user.check_password(current):
+                    messages.error(request, '❌ Current password is incorrect.')
+                elif new != confirm:
+                    messages.error(request, '❌ New passwords do not match.')
+                else:
+                    user.set_password(new)
+                    user.save()
+                    update_session_auth_hash(request, user)
+                    messages.success(request, '✅ Password updated successfully.')
+            else:
+                user.save()
+                messages.success(request, '✅ Settings updated successfully.')
+
+            return redirect('user-settings')
+    else:
+        form = UserSettingsForm(instance=user, initial={'role': profile.role})
+
+    return render(request, 'setting-page.html', {'form': form})

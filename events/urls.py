@@ -1,3 +1,4 @@
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from .views import (
     EventCategoryListView,
@@ -25,6 +26,7 @@ from .views import (
     search_event,
     create_event,
     user_list,
+
     
 )
 
@@ -54,5 +56,13 @@ urlpatterns = [
     path('search_event/', search_event, name='search-event'),
     path('create/', create_event, name='create'),
     path('users/', user_list, name='user-list'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
+        template_name='password_reset_done.html'), name='password_reset_done'),
+
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name='password_reset_confirm.html'), name='password_reset_confirm'),
+
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='password_reset_complete.html'), name='password_reset_complete'),
   
 ]

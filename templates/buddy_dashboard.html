@@ -3,79 +3,87 @@
 {% block breadcrumb %}My Dashboard{% endblock breadcrumb %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-4">
-    <div class="small-box text-white text-center p-4" style="background-color: #6EC6CA; border-radius: 10px;">
-      <h3>{{ event_ctg|default:"0" }}</h3>
-      <p>My Categories</p>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="small-box text-white text-center p-4" style="background-color: #AEDBD3; border-radius: 10px;">
-      <h3>{{ event|default:"0" }}</h3>
-      <p>My Events</p>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="small-box text-white text-center p-4" style="background-color: #9FBBCB; border-radius: 10px;">
-      <h3>{{ complete_event|default:"0" }}</h3>
-      <p>Completed Events</p>
-    </div>
-  </div>
-</div>
+<div class="container dashboard-top-spacing">
 
-<div class="row mt-4">
-  <div class="col-md-12">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-transparent">
-        <h5>My Events</h5>
+  <!-- Cards -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-4">
+      <div class="small-box text-white text-center p-4" style="background-color: #6EC6CA; border-radius: 10px;">
+        <h3>{{ event_ctg|default:"0" }}</h3>
+        <p>My Categories</p>
       </div>
-      <div class="card-body p-0">
-        <table class="table table-striped mb-0">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Venue</th>
-              <th>Status</th>
-              <th>Attendees</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for event in events %}
-            <tr>
-              <td>{{ forloop.counter }}</td>
-              <td>{{ event.name }}</td>
-              <td>{{ event.start_date }}</td>
-              <td>{{ event.end_date }}</td>
-              <td>{{ event.venue }}</td>
-              <td>{{ event.status }}</td>
-              <td>{{ event.eventmember_set.count }}</td>
-              <td>
-                <a class="btn btn-primary btn-sm" href="{% url 'event-detail' event.pk %}" title="View">
-                  <i class="fa fa-eye"></i>
-                </a>
-                {% if event.created_date|timesince < "0:05:00" %}
-                <a class="btn btn-secondary btn-sm" href="{% url 'event-edit' event.pk %}" title="Edit">
-                  <i class="fa fa-edit"></i>
-                </a>
-                {% else %}
-                <span class="text-muted small">Edit locked</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="8" class="text-center">No events created yet.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    </div>
+
+    <div class="col-md-4">
+      <div class="small-box text-white text-center p-4" style="background-color: #AEDBD3; border-radius: 10px;">
+        <h3>{{ event|default:"0" }}</h3>
+        <p>My Events</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="small-box text-white text-center p-4" style="background-color: #9FBBCB; border-radius: 10px;">
+        <h3>{{ complete_event|default:"0" }}</h3>
+        <p>Completed Events</p>
       </div>
     </div>
   </div>
+
+  <!-- Event Table -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent">
+          <h5>My Events</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Venue</th>
+                <th>Status</th>
+                <th>Attendees</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for event in events %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ event.name }}</td>
+                <td>{{ event.start_date }}</td>
+                <td>{{ event.end_date }}</td>
+                <td>{{ event.venue }}</td>
+                <td>{{ event.status }}</td>
+                <td>{{ event.eventmember_set.count }}</td>
+                <td>
+                  <a class="btn btn-primary btn-sm" href="{% url 'event-detail' event.pk %}" title="View">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                  {% if event.created_date|timesince < "0:05:00" %}
+                    <a class="btn btn-secondary btn-sm" href="{% url 'event-edit' event.pk %}" title="Edit">
+                      <i class="fa fa-edit"></i>
+                    </a>
+                  {% else %}
+                    <span class="text-muted small">Edit locked</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center">No events created yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock content %}

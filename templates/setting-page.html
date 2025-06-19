@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+{% block title %}Account Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Account Settings</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Поле для імені користувача -->
+    <div class="form-group">
+      <label for="id_username">Username:</label>
+      {{ form.username }}
+    </div>
+
+    <!-- Поле для ролі -->
+    <div class="form-group">
+      <label for="id_role">Role:</label>
+      {{ form.role }}
+    </div>
+
+    <!-- Зміна пароля -->
+    <hr>
+    <h5>Change Password</h5>
+    <div class="form-group">
+      <label for="current_password">Current Password:</label>
+      <input type="password" name="current_password" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="new_password">New Password:</label>
+      <input type="password" name="new_password" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="confirm_password">Confirm New Password:</label>
+      <input type="password" name="confirm_password" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Update Settings</button>
+  </form>
+</div>
+{% endblock %}

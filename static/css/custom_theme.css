@@ -187,3 +187,7 @@ nav.main-header.navbar
   background-color: rgba(0,0,0,0.05) !important;
   color: #2C3E50 !important;
 }
+
+.dashboard-top-spacing {
+  margin-top: 100px  !important;
+}

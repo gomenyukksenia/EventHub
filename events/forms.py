@@ -3,14 +3,15 @@ from betterforms.multiform import MultiModelForm
 from django import forms
 from .models import Event, EventImage, EventAgenda
 from django import forms
-from events_management_platform.views import whats_on
+from django.contrib.auth.models import User
+from events.models import UserProfile
 
 class EventForm(forms.ModelForm):
 
 
     class Meta:
         model = Event
-        fields = ['category', 'name', 'uid', 'description', 'job_category', 'scheduled_status', 'venue', 'start_date', 'end_date', 'location', 'points', 'maximum_attende', 'status']
+        fields = ['category', 'name', 'uid', 'description', 'scheduled_status', 'venue', 'start_date', 'end_date', 'points', 'maximum_attende', 'status']
         widgets = {
             'start_date': forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -23,7 +24,7 @@ class EventImageForm(forms.ModelForm):
     class Meta:
         model = EventImage
         fields = ['image']
-
+        
 class EmailVerificationForm(forms.Form):
     code = forms.CharField(
         max_length=6,
@@ -67,3 +68,9 @@ class ConfirmationCodeForm(forms.Form):
         max_length=6,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the 6-digit code'})
     )
+class UserSettingsForm(forms.ModelForm):
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
+
+    class Meta:
+        model = User
+        fields = ['username', 'role']

@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+from events.models import UserProfile
 
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Corporate email address (@ukma.edu.ua)', widget=forms.EmailInput(attrs={
@@ -16,3 +18,10 @@ class ConfirmationCodeForm(forms.Form):
         max_length=6,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the 6-digit code'})
     )
+
+class UserSettingsForm(forms.ModelForm):
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
+
+    class Meta:
+        model = User
+        fields = ['username', 'role']
