@@ -6,8 +6,9 @@ from django import forms
 from django.contrib.auth.models import User
 from events.models import UserProfile
 
-class EventForm(forms.ModelForm):
 
+# Form: creating or editing events
+class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
@@ -18,13 +19,15 @@ class EventForm(forms.ModelForm):
         }
 
 
+# Form: uploading an event image
 class EventImageForm(forms.ModelForm):
-
 
     class Meta:
         model = EventImage
         fields = ['image']
-        
+
+
+# Form: verifying user's email via a code
 class EmailVerificationForm(forms.Form):
     code = forms.CharField(
         max_length=6,
@@ -32,6 +35,8 @@ class EmailVerificationForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Enter the code from email'})
     )
 
+
+# Form: managing event agenda sessions
 class EventAgendaForm(forms.ModelForm):
 
 
@@ -45,13 +50,16 @@ class EventAgendaForm(forms.ModelForm):
         }
 
 
+# Composite form combining event, image, and agenda forms
 class EventCreateMultiForm(MultiModelForm):
     form_classes = {
         'event': EventForm,
         'event_image': EventImageForm,
         'event_agenda': EventAgendaForm,
     }
-    
+
+
+# Form: user login with email and password fields
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Corporate email address (@ukma.edu.ua)', widget=forms.EmailInput(attrs={
         'class': 'form-control',
@@ -62,12 +70,17 @@ class LoginForm(forms.Form):
         'placeholder': 'Enter your password'
     }))
 
+
+# Form: entering confirmation code during verification
 class ConfirmationCodeForm(forms.Form):
     code = forms.CharField(
         label='Confirmation Code',
         max_length=6,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the 6-digit code'})
     )
+
+
+# Form: updating user settings, including role
 class UserSettingsForm(forms.ModelForm):
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
 

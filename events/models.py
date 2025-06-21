@@ -5,6 +5,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth.models import User
 
 
+# Model: event categories
 class EventCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=6, unique=True)
@@ -29,12 +30,16 @@ class EventCategory(models.Model):
     def get_absolute_url(self):
         return reverse('event-category-list')
 
+
+# Model: categorizing jobs related to events
 class JobCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
+
+# Model: event with its details
 class Event(models.Model):
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)
@@ -79,11 +84,14 @@ class Event(models.Model):
         obj.updated_by = request.user
         obj.save()
 
+
+# Model: storing images
 class EventImage(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='event_image/')
 
 
+# Model: schedule and sessions of an event
 class EventAgenda(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     session_name = models.CharField(max_length=120)
@@ -93,6 +101,7 @@ class EventAgenda(models.Model):
     venue_name = models.CharField(max_length=255)
 
 
+# Model: linking events with their job categories
 class EventJobCategoryLinking(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     job_category = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
@@ -109,6 +118,7 @@ class EventJobCategoryLinking(models.Model):
         return str(self.event)
 
 
+# Model: tracking users attendance in events
 class EventMember(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -144,6 +154,7 @@ class EventMember(models.Model):
         return reverse('join-event-list')
 
 
+# Model: wishlists
 class EventUserWishList(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -171,6 +182,7 @@ class EventUserWishList(models.Model):
         return reverse('event-wish-list')
 
 
+# Model: managing virtual coins
 class UserCoin(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     CHOICE_GAIN_TYPE = (
@@ -198,6 +210,7 @@ class UserCoin(models.Model):
     def get_absolute_url(self):
         return reverse('user-mark')
 
+# Model: storing email confirmation codes for user verification
 class EmailConfirmation(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
@@ -207,6 +220,7 @@ class EmailConfirmation(models.Model):
         return f"Confirmation for {self.user.username}"
 
 
+# Model: extending user information with roles (admin, buddy, student)
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ('admin', 'Admin'),

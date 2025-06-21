@@ -19,6 +19,7 @@ from django.contrib import messages
 
 from events.forms import UserSettingsForm
 
+
 # ==== DASHBOARD ====
 @login_required(login_url='login')
 def dashboard(request):
@@ -45,6 +46,9 @@ def dashboard(request):
 
     else:
         return render(request, 'student_dashboard.html')
+
+
+# View: edit event with buddy restrictions
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -57,6 +61,8 @@ def edit_event(request, pk):
             return HttpResponseForbidden("You can only edit within 5 minutes of creation.")
 
     # далі — звичайна логіка редагування
+
+
 # ==== LOGIN ====
 def login_page(request):
     form = LoginForm()
@@ -88,6 +94,7 @@ def login_page(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 # ==== REGISTER ====
 def RegisterPage(request):
@@ -194,12 +201,12 @@ def forgot_page(request):
     return render(request, 'forgot-password.html')
 
 
-
 def logut_page(request):
     logout(request)
     return redirect('login')
 
 
+# View: show upcoming events to logged-in users
 @login_required(login_url='login')
 def whats_on(request):
     upcoming_events = Event.objects.filter(end_date__gte=timezone.now()).order_by('start_date')
@@ -208,6 +215,8 @@ def whats_on(request):
     }
     return render(request, 'events/whats_on.html', context)
 
+
+# View: send a new password to user's email
 def send_new_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -244,6 +253,8 @@ EventHub Team
 
     return render(request, 'events/send_new_password.html')
 
+
+# View: user settings update with password change support
 @login_required
 def settings_page(request):
     user = request.user

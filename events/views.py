@@ -30,14 +30,13 @@ from .models import (
     EventUserWishList,
     UserCoin,
     EventImage,
-    EventAgenda
+    EventAgenda, EmailConfirmation
 
 )
 from .forms import EventForm, EventImageForm, EventAgendaForm, EventCreateMultiForm
 
 
-
-# Event category list view
+# View: list all event categories
 class EventCategoryListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventCategory
@@ -45,6 +44,7 @@ class EventCategoryListView(LoginRequiredMixin, ListView):
     context_object_name = 'event_category'
 
 
+# View: create a new event category
 class EventCategoryCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventCategory
@@ -57,6 +57,7 @@ class EventCategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View: update an existing event category
 class EventCategoryUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = EventCategory
@@ -64,12 +65,14 @@ class EventCategoryUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'events/edit_event_category.html'
 
 
+# View: delete an event category
 class EventCategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model =  EventCategory
     template_name = 'events/event_category_delete.html'
     success_url = reverse_lazy('event-category-list')
 
+# View: create a new event with image and agenda (function-based)
 @login_required(login_url='login')
 def create_event(request):
     event_form = EventForm()
@@ -99,6 +102,8 @@ def create_event(request):
     }
     return render(request, 'events/create.html', context)
 
+
+# View: create a new event with multi-form (event, image, agenda)
 class EventCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     form_class = EventCreateMultiForm
@@ -124,6 +129,7 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
+# View: list all events
 class EventListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = Event
@@ -131,6 +137,7 @@ class EventListView(LoginRequiredMixin, ListView):
     context_object_name = 'events'
 
 
+# View: update an event
 class EventUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = Event
@@ -138,6 +145,7 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'events/edit_event.html'
 
 
+# View: event detail view
 class EventDetailView(LoginRequiredMixin, DetailView):
     login_url = 'login'
     model = Event
@@ -145,6 +153,7 @@ class EventDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'event'
 
 
+# View: delete an event
 class EventDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = Event
@@ -152,6 +161,7 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('event-list')
 
 
+# View: add member to an event
 class AddEventMemberCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventMember
@@ -164,6 +174,7 @@ class AddEventMemberCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View: list event members
 class JoinEventListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventMember
@@ -171,6 +182,7 @@ class JoinEventListView(LoginRequiredMixin, ListView):
     context_object_name = 'eventmember'
 
 
+# View: remove member from event
 class RemoveEventMemberDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = EventMember
@@ -178,6 +190,7 @@ class RemoveEventMemberDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('join-event-list')
 
 
+# View: list user wishlists
 class EventUserWishListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventUserWishList
@@ -185,6 +198,7 @@ class EventUserWishListView(LoginRequiredMixin, ListView):
     context_object_name = 'eventwish'
 
 
+# View: add event to user wishlist
 class AddEventUserWishListCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventUserWishList
@@ -197,6 +211,7 @@ class AddEventUserWishListCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View: remove event from user wishlist
 class RemoveEventUserWishDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = EventUserWishList
@@ -204,6 +219,7 @@ class RemoveEventUserWishDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('event-wish-list')
 
 
+# View: update event status
 class UpdateEventStatusView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = Event
@@ -211,6 +227,7 @@ class UpdateEventStatusView(LoginRequiredMixin, UpdateView):
     template_name = 'events/update_event_status.html'
 
 
+# View: list completed events
 class CompleteEventList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = Event
@@ -221,6 +238,7 @@ class CompleteEventList(LoginRequiredMixin, ListView):
         return Event.objects.filter(status='completed')
 
 
+# View: list absent event members
 class AbsenseUserList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventMember
@@ -231,6 +249,7 @@ class AbsenseUserList(LoginRequiredMixin, ListView):
         return EventMember.objects.filter(attend_status='absent')
 
 
+# View: list completed event members
 class CompleteEventUserList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventMember
@@ -241,6 +260,7 @@ class CompleteEventUserList(LoginRequiredMixin, ListView):
         return EventMember.objects.filter(attend_status='completed')
 
 
+# View: create a user coin/mark
 class CreateUserMark(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = UserCoin
@@ -253,16 +273,19 @@ class CreateUserMark(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View: list user coins/marks
 class UserMarkList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = UserCoin
     template_name = 'events/user_mark_list.html'
     context_object_name = 'usermark'
 
+# View: list users (simple page)
 @login_required(login_url='login')
 def user_list(request):
     return render(request, 'users/user_list.html')
 
+# View: search event categories
 @login_required(login_url='login')
 def search_event_category(request):
     if request.method == 'POST':
@@ -274,6 +297,7 @@ def search_event_category(request):
        return render(request, 'events/event_category.html', context)
     return render(request, 'events/event_category.html')
 
+# View: search events
 @login_required(login_url='login')
 def search_event(request):
     if request.method == 'POST':
@@ -285,6 +309,8 @@ def search_event(request):
        return render(request, 'events/event_list.html', context)
     return render(request, 'events/event_list.html')
 
+
+# View: confirm user email via code
 def confirm_code(request):
     if request.method == 'POST':
         code_entered = request.POST.get('code')
@@ -304,6 +330,8 @@ def confirm_code(request):
 
     return render(request, 'verify_email.html')
 
+
+# View: send new password to user email
 def send_new_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -338,6 +366,8 @@ EventHub Team
 
     return render(request, 'events/send_new_password.html')
 
+
+# View: user settings page (change username, role, password)
 @login_required
 def settings_page(request):
     user = request.user
